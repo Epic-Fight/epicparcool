@@ -1,0 +1,17 @@
+package com.yesman.epicparcool;
+
+import yesman.epicfight.api.animation.LivingMotion;
+
+public enum ParcoolLivingMotions implements LivingMotion {
+	CLING_TO_CLIFF, CLING_TO_CLIFF_INNER_CORNER, CLING_TO_CLIFF_OUTER_CORNER, DIVE, SKY_DIVE, WALL_SLIDING_LEFT, WALL_SLIDING_RIGHT, WALL_RUNNING_LEFT, WALL_RUNNING_RIGHT, FAST_RUN, HANG_DOWN_ORTHOGONAL, HANG_DOWN, SLIDING, CRAWL, CAT_LEAP_PREPARATION;
+	
+	final int id;
+	
+	ParcoolLivingMotions() {
+		this.id = LivingMotion.ENUM_MANAGER.assign(this);
+	}
+	
+	public int universalOrdinal() {
+		return this.id;
+	}
+}
