@@ -25,8 +25,8 @@ import com.alrex.parcool.utilities.VectorUtil;
 import com.google.common.collect.Maps;
 import com.yesman.epicparcool.EpicParCool;
 import com.yesman.epicparcool.ParCoolUtils;
-import com.yesman.epicparcool.ParcoolLivingMotions;
 import com.yesman.epicparcool.ParCoolUtils.ClingType;
+import com.yesman.epicparcool.ParcoolLivingMotions;
 import com.yesman.epicparcool.animations.ParCoolAnimations;
 import com.yesman.epicparcool.mixin.ParCoolMixinAnimation;
 import com.yesman.epicparcool.mixin.ParCoolMixinDiveAnimationHostAnimator;
@@ -40,6 +40,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.types.ActionAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.forgeevent.UpdatePlayerMotionEvent;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSkills;
@@ -183,19 +185,6 @@ public class ParCoolClientEvents {
 		});
 	}
 	
-	/** Code disables rendering epic fight model while taking Parcool action
-	@SubscribeEvent
-	public static void onRenderPlayerEvent(RenderEpicFightPlayerEvent event) {
-		event.getPlayerPatch().getOriginal().getCapability(Capabilities.ANIMATION_CAPABILITY).ifPresent((animation) -> {
-			ParCoolMixinAnimation animationAccessor = (ParCoolMixinAnimation)animation;
-			com.alrex.parcool.client.animation.Animator animator = animationAccessor.getAnimator();
-			if (animator != null && !event.getPlayerPatch().isBattleMode()) {
-				//event.setShouldRender(false);
-			}
-		});
-	}
-	**/
-	
 	@SubscribeEvent
 	public static void onBaseLayerUpdateEvent(UpdatePlayerMotionEvent.BaseLayer event) {
 		if (event.inaction()) {
@@ -242,18 +231,35 @@ public class ParCoolClientEvents {
 				
 				if (!axisMismatches) {
 					playerpatch.setModelYRot(yRot, true);
+					AssetAccessor<? extends ActionAnimation> animationAccessor = null;
+					AssetAccessor<? extends ActionAnimation> endAnimationAccessor = null;
 					
 					if (hangDown.isOrthogonalToBar()) {
 						if (event.getInput().left) {
-							playerpatch.playAnimationSynchronized(ParCoolAnimations.BIPED_HANG_DOWN_MOVE_LEFT, 0.0F);
+							animationAccessor = ParCoolAnimations.BIPED_HANG_DOWN_MOVE_LEFT;
 						} else if (event.getInput().right) {
-							playerpatch.playAnimationSynchronized(ParCoolAnimations.BIPED_HANG_DOWN_MOVE_RIGHT, 0.0F);
+							animationAccessor = ParCoolAnimations.BIPED_HANG_DOWN_MOVE_RIGHT;
 						}
 					} else {
 						if (event.getInput().up) {
-							playerpatch.playAnimationSynchronized(ParCoolAnimations.BIPED_HANG_DOWN_MOVE_FORWARD_START, 0.0F);
+							animationAccessor = ParCoolAnimations.BIPED_HANG_DOWN_MOVE_FORWARD_START;
+							endAnimationAccessor = ParCoolAnimations.BIPED_HANG_DOWN_MOVE_FORWARD_END1;
 						} else if (event.getInput().down) {
-							playerpatch.playAnimationSynchronized(ParCoolAnimations.BIPED_HANG_DOWN_MOVE_BACKWARD, 0.0F);
+							animationAccessor = ParCoolAnimations.BIPED_HANG_DOWN_MOVE_BACKWARD;
+						}
+					}
+					
+					if (animationAccessor != null) {
+						Vec3 simulatedMove = animationAccessor.get().getExpectedMovement(playerpatch, animationAccessor.get().getTotalTime());
+						
+						if (endAnimationAccessor != null) {
+							simulatedMove = simulatedMove.add(endAnimationAccessor.get().getExpectedMovement(playerpatch, endAnimationAccessor.get().getTotalTime()));
+						}
+						
+						Vec3 hangDownDest = ParCoolUtils.getHangableBars(playerpatch.getOriginal(), simulatedMove);
+						
+						if (hangDownDest != null) {
+							playerpatch.playAnimationSynchronized(animationAccessor, 0.0F);
 						}
 					}
 				}
@@ -265,9 +271,8 @@ public class ParCoolClientEvents {
 			event.getInput().down = false;
 			event.getInput().forwardImpulse = 0.0F;
 			event.getInput().leftImpulse = 0.0F;
-		}
-		
-		if (parkourability.get(ClingToCliff.class).isDoing()) {
+			event.getEntity().setDeltaMovement(0, 0, 0);
+		} else if (parkourability.get(ClingToCliff.class).isDoing()) {
 			if (!playerpatch.getEntityState().inaction()) {
 				if (event.getInput().left) {
 					ParCoolUtils.scanTerrainAndStartClingAction(playerpatch, ParCoolUtils.WallMoveType.MOVE_LEFT);
@@ -282,6 +287,7 @@ public class ParCoolClientEvents {
 			event.getInput().down = false;
 			event.getInput().forwardImpulse = 0.0F;
 			event.getInput().leftImpulse = 0.0F;
+			event.getEntity().setDeltaMovement(0, 0, 0);
 		}
 	}
 }

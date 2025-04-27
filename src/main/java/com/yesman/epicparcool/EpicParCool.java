@@ -55,6 +55,13 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  Now Epic Fight models are visible when filter animation is off in the mining mode
  *  Now players can't cancel attacks by flip
  *  
+ *  Minor changes in alpha verison
+ *  20.10.1.4 -> 20.10.1.5
+ *  
+ *  Fixed chain movement animations being played after getting away from the chain blocks
+ *  Fixed chain animations to play sounds depending on the hanging block
+ *  
+ *  
  *  @author yesman
  */
 @Mod(EpicParCool.MODID)

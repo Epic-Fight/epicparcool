@@ -59,7 +59,15 @@ public class ParCoolUtils {
 	};
 	
 	@SuppressWarnings("incomplete-switch")
-	public static Vec3 getHangableBars(LivingEntity entity) {
+	public static Vec3 getHangableBars(LivingEntity entity, Vec3 simulateNextPos) {
+		Vec3 entityPos = entity.position();
+		boolean posChanged = false;
+    	
+    	if (!Vec3.ZERO.equals(simulateNextPos)) {
+			entity.setPos(entityPos.add(simulateNextPos));
+			posChanged = true;
+    	}
+		
 		double bbWidth = entity.getBbWidth() / 4;
 		double bbHeight = 0.35;
 		AABB bb = new AABB(
@@ -72,6 +80,10 @@ public class ParCoolUtils {
 		);
 		
 		if (entity.getCommandSenderWorld().noCollision(entity, bb)) {
+			if (posChanged) {
+	    		entity.setPos(entityPos);
+	    	}
+			
 			return null;
 		}
 		
@@ -82,6 +94,10 @@ public class ParCoolUtils {
 		);
 		
 		if (!entity.getCommandSenderWorld().isLoaded(pos)) {
+			if (posChanged) {
+	    		entity.setPos(entityPos);
+	    	}
+			
 			return null;
 		}
 		
@@ -89,8 +105,12 @@ public class ParCoolUtils {
 		Block block = state.getBlock();
 		HangDown.BarAxis axis = null;
 		
-		if (block instanceof RotatedPillarBlock) {
+		if (block instanceof RotatedPillarBlock) { // Chain
 			if (state.isCollisionShapeFullBlock(entity.getCommandSenderWorld(), pos)) {
+				if (posChanged) {
+		    		entity.setPos(entityPos);
+		    	}
+				
 				return null;
 			}
 			
@@ -103,8 +123,12 @@ public class ParCoolUtils {
 					axis = HangDown.BarAxis.Z;
 					break;
 			}
-		} else if (block instanceof DirectionalBlock) {
+		} else if (block instanceof DirectionalBlock) { // End rod, lighting rod
 			if (state.isCollisionShapeFullBlock(entity.getCommandSenderWorld(), pos)) {
+				if (posChanged) {
+		    		entity.setPos(entityPos);
+		    	}
+				
 				return null;
 			}
 			
@@ -118,7 +142,7 @@ public class ParCoolUtils {
 				case SOUTH:
 					axis = HangDown.BarAxis.Z;
 			}
-		} else if (block instanceof CrossCollisionBlock) {
+		} else if (block instanceof CrossCollisionBlock) { // Iron Bars, Fence, Stained glass
 			int zCount = 0;
 			int xCount = 0;
 			if (state.getValue(CrossCollisionBlock.NORTH)) zCount++;
@@ -127,7 +151,7 @@ public class ParCoolUtils {
 			if (state.getValue(CrossCollisionBlock.WEST)) xCount++;
 			if (zCount > 0 && xCount == 0) axis = HangDown.BarAxis.Z;
 			if (xCount > 0 && zCount == 0) axis = HangDown.BarAxis.X;
-		} else if (block instanceof WallBlock) {
+		} else if (block instanceof WallBlock) { // All types of wall blocks
 			int zCount = 0;
 			int xCount = 0;
 			if (state.getValue(WallBlock.NORTH_WALL) != WallSide.NONE) zCount++;
@@ -138,12 +162,25 @@ public class ParCoolUtils {
 			if (xCount > 0 && zCount == 0) axis = HangDown.BarAxis.X;
 		}
 		
+		Vec3 simulatedDestPosition = entity.position();
+		
+		if (posChanged) {
+    		entity.setPos(entityPos);
+    	}
+		
+		if (axis == null) {
+			return null;
+		}
+		
+		VoxelShape shape = state.getCollisionShape(entity.level(), pos);
+		double min = pos.getY() - (0.5D - shape.min(Direction.Axis.Y));
+		
 		switch (axis) {
 		case X -> {
-			return new Vec3(entity.getX(), pos.getY(), pos.getZ() + 0.5D);
+			return new Vec3(simulatedDestPosition.x, min, pos.getZ() + 0.5D);
 		}
 		case Z -> {
-			return new Vec3(pos.getX() + 0.5D, pos.getY(), entity.getZ());
+			return new Vec3(pos.getX() + 0.5D, min, simulatedDestPosition.z);
 		}
 		default -> {
 			return null;
@@ -155,9 +192,9 @@ public class ParCoolUtils {
         Level level = entity.level();
         Vec3 pos = entity.position();
         BlockPos leanedBlock = new BlockPos(
-                (int) Math.floor(pos.x() + wallDirection.x()),
-                (int) Math.floor(pos.y() + entity.getBbHeight() * 0.25),
-                (int) Math.floor(pos.z() + wallDirection.z())
+            (int) Math.floor(pos.x() + wallDirection.x()),
+            (int) Math.floor(pos.y() + entity.getBbHeight() * 0.25),
+            (int) Math.floor(pos.z() + wallDirection.z())
         );
         if (!level.isLoaded(leanedBlock)) return;
         float width = entity.getBbWidth();
@@ -318,23 +355,23 @@ public class ParCoolUtils {
 		}
     }
     
-    public static ScanResult getGrabbableWall(Entity entity, Vec3 moveVec) {
+    public static ScanResult getGrabbableWall(Entity entity, Vec3 simulateNextPos) {
     	double baseLine1 = entity.getEyeHeight() + (entity.getBbHeight() - entity.getEyeHeight()) / 2;
 		double baseLine2 = entity.getBbHeight() + (entity.getBbHeight() - entity.getEyeHeight()) / 2;
 		
-		ScanResult wall = getGrabbableWall(entity, moveVec, baseLine1);
+		ScanResult wall = getGrabbableWall(entity, simulateNextPos, baseLine1);
 		if (wall != null) return wall;
 		
-		return getGrabbableWall(entity, moveVec, baseLine2);
+		return getGrabbableWall(entity, simulateNextPos, baseLine2);
     }
     
-    public static ScanResult getGrabbableWall(Entity entity, Vec3 moveVec, double hangHeight) {
+    public static ScanResult getGrabbableWall(Entity entity, Vec3 simulateNextPos, double hangHeight) {
     	Vec3 pos = entity.position();
     	Level level = entity.getCommandSenderWorld();
     	boolean posChanged = false;
     	
-    	if (!Vec3.ZERO.equals(moveVec)) {
-			entity.setPos(pos.add(moveVec));
+    	if (!Vec3.ZERO.equals(simulateNextPos)) {
+			entity.setPos(pos.add(simulateNextPos));
 			posChanged = true;
     	}
     	

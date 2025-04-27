@@ -13,8 +13,8 @@ import com.yesman.epicparcool.ParCoolUtils;
 import com.yesman.epicparcool.ParCoolUtils.ClingType;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -807,7 +807,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.WORLD_COORD)
 				.addProperty(ActionAnimationProperty.COORD_DEST_KEYFRAME_INDEX, 2)
 				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, (self, entitypatch) -> {
-					return ParCoolUtils.getHangableBars(entitypatch.getOriginal()); 
+					return ParCoolUtils.getHangableBars(entitypatch.getOriginal(), Vec3.ZERO); 
 				})
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
@@ -819,13 +819,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.COORD_GET, MoveCoordFunctions.WORLD_COORD)
 				.addProperty(ActionAnimationProperty.COORD_DEST_KEYFRAME_INDEX, 2)
 				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, (self, entitypatch) -> {
-					Vec3 dest = ParCoolUtils.getHangableBars(entitypatch.getOriginal()); 
-					
-					if (dest != null) {
-						return dest;
-					} else {
-						return null;
-					}
+					return ParCoolUtils.getHangableBars(entitypatch.getOriginal(), Vec3.ZERO);
 				})
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
@@ -882,7 +876,7 @@ public class ParCoolAnimations {
 			new ActionAnimation(0.05F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT),SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
 					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
 						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown()) {
@@ -897,10 +891,14 @@ public class ParCoolAnimations {
 			new ActionAnimation(0.05F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
 					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
-						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown()) {
+						Vec3 movement = BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1.get().getTotalTime());
+						movement = movement.add(BIPED_HANG_DOWN_MOVE_FORWARD_END2.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_END2.get().getTotalTime()));
+						Vec3 hangDownDest = ParCoolUtils.getHangableBars(entitypatch.getOriginal(), movement);
+						
+						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown() && hangDownDest != null) {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_CROSS2);
 						} else {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_END2);
@@ -912,10 +910,14 @@ public class ParCoolAnimations {
 			new ActionAnimation(0.05F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
 					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
-						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown()) {
+						Vec3 movement = BIPED_HANG_DOWN_MOVE_FORWARD_CROSS2.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_CROSS2.get().getTotalTime());
+						movement = movement.add(BIPED_HANG_DOWN_MOVE_FORWARD_END1.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_END1.get().getTotalTime()));
+						Vec3 hangDownDest = ParCoolUtils.getHangableBars(entitypatch.getOriginal(), movement);
+						
+						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown() && hangDownDest != null) {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1);
 						} else {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_END1);
@@ -927,35 +929,35 @@ public class ParCoolAnimations {
 			new ActionAnimation(0.05F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
 		
 		BIPED_HANG_DOWN_MOVE_FORWARD_END2 = builder.nextAccessor("biped/hang_down_move_end2", (accessor) ->
 			new ActionAnimation(0.05F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
 		
 		BIPED_HANG_DOWN_MOVE_BACKWARD = builder.nextAccessor("biped/hang_down_move_backward", (accessor) ->
 			new ActionAnimation(0.15F, 0.6F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
 		
 		BIPED_HANG_DOWN_MOVE_LEFT = builder.nextAccessor("biped/hang_down_move_left", (accessor) ->
 			new ActionAnimation(0.15F, 0.45F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
 		
 		BIPED_HANG_DOWN_MOVE_RIGHT = builder.nextAccessor("biped/hang_down_move_right", (accessor) ->
 			new ActionAnimation(0.15F, 0.45F, accessor, Armatures.BIPED)
 				.addProperty(ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundEvents.CHAIN_STEP), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)));
 	}
 	
@@ -1005,6 +1007,11 @@ public class ParCoolAnimations {
 			} else if (animation == BIPED_WALL_JUMP_RIGHT_START) {
 				entitypatch.getAnimator().reserveAnimation(BIPED_WALL_JUMP_RIGHT);
 			}
+		};
+		
+		public static final AnimationEvent.E0 PLAY_HANG_MOVE_SOUND = (entitypatch, animation, params) -> {
+			BlockState state = entitypatch.getOriginal().level().getBlockState(entitypatch.getOriginal().blockPosition().above().above());
+			entitypatch.playSound(state.getSoundType().getPlaceSound(), 0, 0);
 		};
 		
 		public static final AnimationProperty.YRotProvider ANIMATION_YROT = (self, entitypatch) -> {
