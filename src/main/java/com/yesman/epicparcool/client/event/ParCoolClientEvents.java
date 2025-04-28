@@ -15,6 +15,7 @@ import com.alrex.parcool.client.animation.impl.WallSlideAnimator;
 import com.alrex.parcool.common.action.impl.ClingToCliff;
 import com.alrex.parcool.common.action.impl.HangDown;
 import com.alrex.parcool.common.action.impl.HangDown.BarAxis;
+import com.alrex.parcool.common.action.impl.JumpFromBar;
 import com.alrex.parcool.common.action.impl.VerticalWallRun;
 import com.alrex.parcool.common.action.impl.WallJump;
 import com.alrex.parcool.common.action.impl.WallSlide;
@@ -76,7 +77,17 @@ public class ParCoolClientEvents {
 				} else if (clingDirection == ClingType.INNER_CORNER) {
 					livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CLING_TO_CLIFF_INNER_CORNER);
 				} else {
-					livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CLING_TO_CLIFF);
+					switch (parkourability.get(ClingToCliff.class).getFacingDirection()) {
+					case ToWall -> {
+						livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CLING_TO_CLIFF);
+					}
+					case LeftAgainstWall -> {
+						livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CLING_TO_CLIFF_LEFT);			
+					}
+					case RightAgainstWall -> {
+						livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CLING_TO_CLIFF_RIGHT);
+					}
+					}
 				}
 			}, () -> {
 				livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CLING_TO_CLIFF);
@@ -172,6 +183,7 @@ public class ParCoolClientEvents {
 					DUMMY_BUFFER.flip();
 					skillexecuteevent.setCanceled(true);
 					skillexecuteevent.getSkillContainer().getDataManager().setData(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get(), true);
+					return;
 				}
 				
 				DUMMY_BUFFER.clear();
@@ -180,6 +192,16 @@ public class ParCoolClientEvents {
 					DUMMY_BUFFER.flip();
 					skillexecuteevent.setCanceled(true);
 					skillexecuteevent.getSkillContainer().getDataManager().setData(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get(), true);
+					return;
+				}
+				
+				DUMMY_BUFFER.clear();
+				
+				if (parkourability.get(JumpFromBar.class).canStart(playerpatch.getOriginal(), parkourability, IStamina.get(playerpatch.getOriginal()), DUMMY_BUFFER)) {
+					DUMMY_BUFFER.flip();
+					skillexecuteevent.setCanceled(true);
+					skillexecuteevent.getSkillContainer().getDataManager().setData(SkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK.get(), true);
+					return;
 				}
 			}
 		});
@@ -287,7 +309,6 @@ public class ParCoolClientEvents {
 			event.getInput().down = false;
 			event.getInput().forwardImpulse = 0.0F;
 			event.getInput().leftImpulse = 0.0F;
-			event.getEntity().setDeltaMovement(0, 0, 0);
 		}
 	}
 }

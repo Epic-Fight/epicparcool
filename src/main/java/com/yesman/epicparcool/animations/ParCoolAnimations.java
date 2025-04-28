@@ -13,6 +13,7 @@ import com.yesman.epicparcool.ParCoolUtils;
 import com.yesman.epicparcool.ParCoolUtils.ClingType;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -41,6 +42,7 @@ import yesman.epicfight.api.animation.types.MovementAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.MathUtils;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -55,6 +57,8 @@ public class ParCoolAnimations {
 	public static AnimationAccessor<StaticAnimation> BIPED_CLING_TO_CLIFF;
 	public static AnimationAccessor<StaticAnimation> BIPED_CLING_TO_CLIFF_INNER_CORNER;
 	public static AnimationAccessor<StaticAnimation> BIPED_CLING_TO_CLIFF_OUTER_CORNER;
+	public static AnimationAccessor<StaticAnimation> BIPED_CLING_TO_CLIFF_LOOK_LEFT;
+	public static AnimationAccessor<StaticAnimation> BIPED_CLING_TO_CLIFF_LOOK_RIGHT;
 	public static AnimationAccessor<ActionAnimation> BIPED_WALL_JUMP_LEFT_START;
 	public static AnimationAccessor<StaticAnimation> BIPED_WALL_JUMP_LEFT;
 	public static AnimationAccessor<ActionAnimation> BIPED_WALL_JUMP_RIGHT_START;
@@ -166,6 +170,69 @@ public class ParCoolAnimations {
 			new StaticAnimation(true, accessor, Armatures.BIPED)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
+				.addEvents(SimpleEvent.create((entitypatch, animation, params) -> {
+					entitypatch.setYRot(entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CLIFF_Y_ROT));
+				}, Side.LOCAL_CLIENT))
+				.newTimePair(0.0F, 10.0F)
+				.addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+				.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+				.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+				.addStateRemoveOld(EntityState.CAN_USE_ITEM, false));
+		
+		BIPED_CLING_TO_CLIFF_LOOK_LEFT = builder.nextAccessor("biped/cling_to_cliff_left", (accessor) ->
+			new StaticAnimation(true, accessor, Armatures.BIPED)
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
+				.addProperty(StaticAnimationProperty.FIXED_HEAD_ROTATION, true)
+				.addProperty(StaticAnimationProperty.POSE_MODIFIER, (DynamicAnimation self, Pose pose, LivingEntityPatch<?> entitypatch, float elapsedTime, float partialTicks) -> {
+					if (pose.hasTransform("Head") && entitypatch.getArmature().hasJoint("Head") && entitypatch instanceof AbstractClientPlayerPatch playerpatch) {
+						float headRotO = playerpatch.getYRotO() - 90.0F - entitypatch.getOriginal().yHeadRotO;
+						float headRot = playerpatch.getYRot() - 90.0F - entitypatch.getOriginal().yHeadRot;
+						
+						float partialHeadRot = Mth.wrapDegrees(MathUtils.lerpBetween(headRotO, headRot, partialTicks));
+						float zRot = entitypatch.getOriginal().getXRot();
+						partialHeadRot = Mth.clamp(partialHeadRot, -90.0F, 90.0F);
+						
+						OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBindedTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
+						Vec3f zAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Z_AXIS, null);
+						Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
+						
+						OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(partialHeadRot, yAxis).rotateDeg(zRot, zAxis);
+						pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
+					}
+				})
+				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
+				.addEvents(SimpleEvent.create((entitypatch, animation, params) -> {
+					entitypatch.setYRot(entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CLIFF_Y_ROT));
+				}, Side.LOCAL_CLIENT))
+				.newTimePair(0.0F, 10.0F)
+				.addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+				.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+				.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+				.addStateRemoveOld(EntityState.CAN_USE_ITEM, false));
+		
+		BIPED_CLING_TO_CLIFF_LOOK_RIGHT = builder.nextAccessor("biped/cling_to_cliff_right", (accessor) ->
+			new StaticAnimation(true, accessor, Armatures.BIPED)
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
+				.addProperty(StaticAnimationProperty.FIXED_HEAD_ROTATION, true)
+				.addProperty(StaticAnimationProperty.POSE_MODIFIER, (DynamicAnimation self, Pose pose, LivingEntityPatch<?> entitypatch, float elapsedTime, float partialTicks) -> {
+					if (pose.hasTransform("Head") && entitypatch.getArmature().hasJoint("Head") && entitypatch instanceof AbstractClientPlayerPatch playerpatch) {
+						float headRotO = playerpatch.getYRotO() + 90.0F - entitypatch.getOriginal().yHeadRotO;
+						float headRot = playerpatch.getYRot() + 90.0F - entitypatch.getOriginal().yHeadRot;
+						float partialHeadRot = Mth.wrapDegrees(MathUtils.lerpBetween(headRotO, headRot, partialTicks));
+						float zRot = -entitypatch.getOriginal().getXRot();
+						partialHeadRot = Mth.clamp(partialHeadRot, -90.0F, 90.0F);
+						
+						OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBindedTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
+						Vec3f zAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Z_AXIS, null);
+						Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
+						
+						OpenMatrix4f headRotation = OpenMatrix4f.createRotatorDeg(partialHeadRot, yAxis).rotateDeg(zRot, zAxis);
+						pose.orElseEmpty("Head").frontResult(JointTransform.fromMatrix(headRotation), OpenMatrix4f::mul);
+					}
+				})
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
 				.addEvents(SimpleEvent.create((entitypatch, animation, params) -> {
 					entitypatch.setYRot(entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CLIFF_Y_ROT));
@@ -578,7 +645,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE)
 				.addProperty(ActionAnimationProperty.COORD_SET_TICK, null)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(com.alrex.parcool.api.SoundEvents.CLING_TO_CLIFF.get()),
+					SimpleEvent.create(ReusableSources.PLAY_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT),
 					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
@@ -592,7 +659,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE)
 				.addProperty(ActionAnimationProperty.COORD_SET_TICK, null)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(com.alrex.parcool.api.SoundEvents.CLING_TO_CLIFF.get()),
+					SimpleEvent.create(ReusableSources.PLAY_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT),
 					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
@@ -614,7 +681,10 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, (self, entitypatch) -> {
 					return entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CORNER_CLING_DESTINATION);
 				})
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
+				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
 				));
@@ -634,7 +704,10 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, (self, entitypatch) -> {
 					return entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CORNER_CLING_DESTINATION);
 				})
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
+				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
 				));
@@ -655,7 +728,8 @@ public class ParCoolAnimations {
 					return entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CORNER_CLING_DESTINATION);
 				})
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
@@ -676,7 +750,10 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.DEST_LOCATION_PROVIDER, (self, entitypatch) -> {
 					return entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CORNER_CLING_DESTINATION);
 				})
-				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
+				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
 				));
@@ -698,7 +775,8 @@ public class ParCoolAnimations {
 				})
 				.addProperty(StaticAnimationProperty.NO_PHYSICS, true)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
@@ -721,7 +799,8 @@ public class ParCoolAnimations {
 				})
 				.addProperty(StaticAnimationProperty.NO_PHYSICS, true)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
@@ -744,7 +823,8 @@ public class ParCoolAnimations {
 				})
 				.addProperty(StaticAnimationProperty.NO_PHYSICS, true)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
@@ -767,7 +847,8 @@ public class ParCoolAnimations {
 				})
 				.addProperty(StaticAnimationProperty.NO_PHYSICS, true)
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
-					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT)
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create(ReusableSources.PLAY_CONER_CLING_MOVE_SOUND, AnimationEvent.Side.CLIENT)
 				)
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS,
 					SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT)
@@ -1012,6 +1093,18 @@ public class ParCoolAnimations {
 		public static final AnimationEvent.E0 PLAY_HANG_MOVE_SOUND = (entitypatch, animation, params) -> {
 			BlockState state = entitypatch.getOriginal().level().getBlockState(entitypatch.getOriginal().blockPosition().above().above());
 			entitypatch.playSound(state.getSoundType().getPlaceSound(), 0, 0);
+		};
+		
+		public static final AnimationEvent.E0 PLAY_CLING_MOVE_SOUND = (entitypatch, animation, params) -> {
+			Vec3 destination = entitypatch.getOriginal().getEyePosition().add(MathUtils.getVectorForRotation(0.0F, entitypatch.getYRot()));
+			BlockState state = entitypatch.getOriginal().level().getBlockState(new BlockPos((int)Math.floor(destination.x), (int)Math.floor(destination.y), (int)Math.floor(destination.z)));
+			entitypatch.playSound(state.getSoundType().getHitSound(), 0, 0);
+		};
+		
+		public static final AnimationEvent.E0 PLAY_CONER_CLING_MOVE_SOUND = (entitypatch, animation, params) -> {
+			Vec3 destination = entitypatch.getOriginal().getEyePosition().add(MathUtils.getVectorForRotation(0.0F, entitypatch.getYRot()));
+			BlockState state = entitypatch.getOriginal().level().getBlockState(new BlockPos((int)Math.floor(destination.x), (int)Math.floor(destination.y), (int)Math.floor(destination.z)));
+			entitypatch.playSound(state.getSoundType().getHitSound(), 0, 0);
 		};
 		
 		public static final AnimationProperty.YRotProvider ANIMATION_YROT = (self, entitypatch) -> {

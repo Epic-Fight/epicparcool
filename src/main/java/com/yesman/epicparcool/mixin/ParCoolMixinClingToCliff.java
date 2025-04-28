@@ -39,6 +39,7 @@ public class ParCoolMixinClingToCliff {
 			if (nowPlaying == ParCoolAnimations.BIPED_CLING_START ||
 				nowPlaying == ParCoolAnimations.BIPED_CLING_MOVE_LEFT ||
 				nowPlaying == ParCoolAnimations.BIPED_CLING_MOVE_RIGHT ||
+				nowPlaying == ParCoolAnimations.BIPED_CLING_MOVE_RIGHT_OUTER_CORNER2 ||
 				nowPlaying == ParCoolAnimations.BIPED_CLING_MOVE_LEFT_INNER_CORNER1 ||
 				nowPlaying == ParCoolAnimations.BIPED_CLING_MOVE_LEFT_INNER_CORNER2 ||
 				nowPlaying == ParCoolAnimations.BIPED_CLING_MOVE_RIGHT_INNER_CORNER1 ||

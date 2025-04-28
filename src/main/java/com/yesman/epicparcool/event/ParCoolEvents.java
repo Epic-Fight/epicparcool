@@ -144,6 +144,14 @@ public class ParCoolEvents {
 			return ParCoolAnimations.BIPED_WALL_RUN_VERTICAL;
 		});
 		
+		PARCOOL_ACTION_CANCEL_EVENTS.put(ClimbUp.class, (playerpatch, action) -> {
+			if (playerpatch.getEntityState().inaction()) {
+				return true;
+			}
+			
+			return false;
+		});
+		
 		PARCOOL_ACTION_CANCEL_EVENTS.put(JumpFromBar.class, (playerpatch, action) -> {
 			Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());
 			IStamina stamina = IStamina.get(playerpatch.getOriginal());
@@ -176,7 +184,9 @@ public class ParCoolEvents {
 			if (
 				currentPlay == ParCoolAnimations.BIPED_CLING_TO_CLIFF ||
 				currentPlay == ParCoolAnimations.BIPED_CLING_TO_CLIFF_INNER_CORNER ||
-				currentPlay == ParCoolAnimations.BIPED_CLING_TO_CLIFF_OUTER_CORNER
+				currentPlay == ParCoolAnimations.BIPED_CLING_TO_CLIFF_OUTER_CORNER ||
+				currentPlay == ParCoolAnimations.BIPED_CLING_TO_CLIFF_LOOK_LEFT ||
+				currentPlay == ParCoolAnimations.BIPED_CLING_TO_CLIFF_LOOK_RIGHT
 			) {
 				Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());
 				IStamina stamina = IStamina.get(playerpatch.getOriginal());
@@ -295,6 +305,8 @@ public class ParCoolEvents {
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CLING_TO_CLIFF, ParCoolAnimations.BIPED_CLING_TO_CLIFF);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CLING_TO_CLIFF_INNER_CORNER, ParCoolAnimations.BIPED_CLING_TO_CLIFF_INNER_CORNER);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CLING_TO_CLIFF_OUTER_CORNER, ParCoolAnimations.BIPED_CLING_TO_CLIFF_OUTER_CORNER);
+			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CLING_TO_CLIFF_LEFT, ParCoolAnimations.BIPED_CLING_TO_CLIFF_LOOK_LEFT);
+			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CLING_TO_CLIFF_RIGHT, ParCoolAnimations.BIPED_CLING_TO_CLIFF_LOOK_RIGHT);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.DIVE, ParCoolAnimations.BIPED_DIVE);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.SKY_DIVE, ParCoolAnimations.BIPED_SKY_DIVE);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.WALL_SLIDING_LEFT, ParCoolAnimations.BIPED_WALL_SLIDE_LEFT);
