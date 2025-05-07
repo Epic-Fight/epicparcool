@@ -525,7 +525,7 @@ public class ParCoolUtils {
 			playerpatch.setModelYRot(destYRot, true);
 			playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLIFF_Y_ROT, destYRot);
 			playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLING_TYPE, clingType);
-			playerpatch.playAnimation(startAnimation, 0.0F);
+			playerpatch.playAnimationSynchronized(startAnimation, 0.0F);
 		}
 		case MOVE_LEFT, MOVE_RIGHT -> {
 			ClingType currentDirection = playerpatch.getAnimator().getVariables().getOrDefaultSharedVariable(ParCoolAnimations.CLING_TYPE);
@@ -543,7 +543,7 @@ public class ParCoolUtils {
 				
 				if (world.noCollision(playerpatch.getOriginal().getBoundingBox().contract(0.1D, 0, 0.1D).move(moveVec))) {
 					playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLING_TYPE, ClingType.STRAIGHT);
-					playerpatch.playAnimation(cornerMoveAnimation, 0.0F);
+					playerpatch.playAnimationSynchronized(cornerMoveAnimation, 0.0F);
 				} else {
 					playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLIFF_Y_ROT, currentYRot);
 				}
@@ -562,7 +562,7 @@ public class ParCoolUtils {
 				
 				if (world.noCollision(playerpatch.getOriginal().getBoundingBox().contract(0.1D, 0, 0.1D).move(moveVec))) {
 					playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLING_TYPE, ClingType.STRAIGHT);
-					playerpatch.playAnimation(cornerMoveAnimation, 0.0F);
+					playerpatch.playAnimationSynchronized(cornerMoveAnimation, 0.0F);
 				} else {
 					playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLIFF_Y_ROT, currentYRot);
 				}
@@ -596,7 +596,7 @@ public class ParCoolUtils {
 					playerpatch.getAnimator().getVariables().put(ParCoolAnimations.CLIFF_START_Y_ROT, cornerMoveAnimation, playerpatch.getYRot());
 					playerpatch.getAnimator().getVariables().put(ParCoolAnimations.CLIFF_DEST_Y_ROT, cornerMoveAnimation, moveYRot);
 					playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLIFF_Y_ROT, visualYRot);
-					playerpatch.playAnimation(cornerMoveAnimation, 0.0F);
+					playerpatch.playAnimationSynchronized(cornerMoveAnimation, 0.0F);
 				}
 				case OUTER_CORNER -> {
 					AnimationAccessor<? extends ActionAnimation> cornerMoveAnimation = (moveType == WallMoveType.MOVE_LEFT ? ParCoolAnimations.BIPED_CLING_MOVE_LEFT_OUTER_CORNER1 : ParCoolAnimations.BIPED_CLING_MOVE_RIGHT_OUTER_CORNER1);
@@ -606,11 +606,11 @@ public class ParCoolUtils {
 					playerpatch.getAnimator().getVariables().put(ParCoolAnimations.CLIFF_START_Y_ROT, cornerMoveAnimation, playerpatch.getYRot());
 					playerpatch.getAnimator().getVariables().put(ParCoolAnimations.CLIFF_DEST_Y_ROT, cornerMoveAnimation, playerpatch.getYRot());
 					playerpatch.getAnimator().getVariables().putSharedVariable(ParCoolAnimations.CLIFF_Y_ROT, visualYRot);
-					playerpatch.playAnimation(cornerMoveAnimation, 0.0F);
+					playerpatch.playAnimationSynchronized(cornerMoveAnimation, 0.0F);
 				}
 				case STRAIGHT -> {
 					AnimationAccessor<? extends ActionAnimation> moveAnimation = (moveType == WallMoveType.MOVE_LEFT ? ParCoolAnimations.BIPED_CLING_MOVE_LEFT : ParCoolAnimations.BIPED_CLING_MOVE_RIGHT);
-					playerpatch.playAnimation(moveAnimation, 0.0F);
+					playerpatch.playAnimationSynchronized(moveAnimation, 0.0F);
 				}
 				}
 			}

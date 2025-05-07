@@ -23,7 +23,9 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import yesman.epicfight.api.animation.LivingMotion;
 
 /**
- *  Major version change
+ *  ***************************************************************
+ *  Major version changes
+ *  ***************************************************************
  *  Created 20.10.1
  *  
  *  Animations for listed parcool actions
@@ -42,8 +44,9 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  - Wall sliding
  *  
  *  ***************************************************************
- *  
  *  Minor version changes
+ *  ***************************************************************
+ *  
  *  20.10.1.3 -> 20.10.1.4
  *  
  *  Added Breakfall animation played when players succeed in canceling fall damage
@@ -55,7 +58,8 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  Now Epic Fight models are visible when filter animation is off in the mining mode
  *  Now players can't cancel attacks by flip
  *  
- *  Minor version changes
+ *  ****************************************************************
+ *  
  *  20.10.1.4 -> 20.10.1.5
  *  
  *  Fixed the chain movement animations being played after getting away from the chain blocks
@@ -65,6 +69,14 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  Added the same movement sound when moving corner clinging to the walls
  *  Added side-looking wall cling animations
  *  Locked climbing-up action while moving by clinging to the walls
+ *  
+ *  ****************************************************************
+ *  
+ *  20.10.1.5 -> 20.10.1.6
+ *  
+ *  Fixed an issue where all players are sharing the same animation
+ *  
+ *  ****************************************************************
  *  
  *  @author yesman
  */

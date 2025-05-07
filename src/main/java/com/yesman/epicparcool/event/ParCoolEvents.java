@@ -336,7 +336,7 @@ public class ParCoolEvents {
 	public static void onParCoolActionEvent$StartEvent(ParCoolActionEvent.StartEvent event) {
 		PlayerPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(event.getPlayer(), PlayerPatch.class);
 		
-		if (entitypatch != null && entitypatch.isLogicalClient() && entitypatch.isBattleMode() && PARCOOL_ACTION_START_MAPPING.containsKey(event.getAction().getClass())) {
+		if (entitypatch != null && entitypatch.isLogicalClient() && entitypatch.getOriginal().isLocalPlayer() && entitypatch.isBattleMode() && PARCOOL_ACTION_START_MAPPING.containsKey(event.getAction().getClass())) {
 			AssetAccessor<? extends StaticAnimation> animation = PARCOOL_ACTION_START_MAPPING.get(event.getAction().getClass()).apply(entitypatch, event);
 			
 			if (animation != null) {
