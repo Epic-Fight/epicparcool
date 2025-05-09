@@ -960,7 +960,7 @@ public class ParCoolAnimations {
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT),SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
 					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
-						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown()) {
+						if (KeyBindings.isKeyForwardDown() && KeyBindings.getKeyHangDown().isDown()) {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1);
 						} else {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_END1);
@@ -979,7 +979,7 @@ public class ParCoolAnimations {
 						movement = movement.add(BIPED_HANG_DOWN_MOVE_FORWARD_END2.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_END2.get().getTotalTime()));
 						Vec3 hangDownDest = ParCoolUtils.getHangableBars(entitypatch.getOriginal(), movement);
 						
-						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown() && hangDownDest != null) {
+						if (KeyBindings.isKeyForwardDown() && KeyBindings.getKeyHangDown().isDown() && hangDownDest != null) {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_CROSS2);
 						} else {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_END2);
@@ -998,7 +998,7 @@ public class ParCoolAnimations {
 						movement = movement.add(BIPED_HANG_DOWN_MOVE_FORWARD_END1.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_END1.get().getTotalTime()));
 						Vec3 hangDownDest = ParCoolUtils.getHangableBars(entitypatch.getOriginal(), movement);
 						
-						if (KeyBindings.getKeyForward().isDown() && KeyBindings.getKeyHangDown().isDown() && hangDownDest != null) {
+						if (KeyBindings.isKeyForwardDown() && KeyBindings.getKeyHangDown().isDown() && hangDownDest != null) {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1);
 						} else {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_END1);
