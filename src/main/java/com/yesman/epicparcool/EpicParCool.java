@@ -78,13 +78,21 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  
  *  ****************************************************************
  *  
+ *  20.10.1.6 -> 20.10.2.1
+ *  
+ *  Fixed the never-ending parcool animation issue in first person
+ *  Fixed the players could pull the bow while doing the Fast Run
+ *  Mod dependency changed: parccol-3.3.1.0 -> parccol-3.4.0.1
+ *  
+ *  ****************************************************************
+ *  
  *  @author yesman
  */
 @Mod(EpicParCool.MODID)
 public class EpicParCool {
 	public static final Logger LOGGER = LogUtils.getLogger();
 	public static final String MODID = "epicparcool";
-	public static final String LEAST_PARCOOL_VERSION = "3.3.1.0";
+	public static final String LEAST_PARCOOL_VERSION = "3.4.0.1";
 	
 	public EpicParCool(FMLJavaModLoadingContext context) {
 		ModContainer mc = ModList.get().getModContainerById(ParCool.MOD_ID).orElseThrow();

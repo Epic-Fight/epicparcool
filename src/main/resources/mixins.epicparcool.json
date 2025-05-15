@@ -13,7 +13,8 @@
 		"ParCoolMixinActionProcessor",
 		"ParCoolMixinAnimation",
 		"ParCoolMixinClingToCliff",
-		"ParCoolMixinClingToCliffAccessor"
+		"ParCoolMixinClingToCliffAccessor",
+		"ParCoolMixinChargeJump"
 	],
 	"injector": {
 		"defaultRequire": 1
