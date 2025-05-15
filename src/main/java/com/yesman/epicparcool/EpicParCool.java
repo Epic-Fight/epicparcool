@@ -82,6 +82,7 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  
  *  Fixed the never-ending parcool animation issue in first person
  *  Fixed the players could pull the bow while doing the Fast Run
+ *  Fixed the cat leap jump power being weakened when learn Demolition Leap
  *  Mod dependency changed: parccol-3.3.1.0 -> parccol-3.4.0.1
  *  
  *  ****************************************************************
