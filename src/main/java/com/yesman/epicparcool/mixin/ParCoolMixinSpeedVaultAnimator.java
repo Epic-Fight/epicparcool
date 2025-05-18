@@ -21,7 +21,7 @@ public abstract class ParCoolMixinSpeedVaultAnimator extends Animator {
 	public void epicfight_shouldRemoved(Player player, Parkourability parkourability, CallbackInfoReturnable<Boolean> info) {
 		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 		
-		if (playerpatch != null && playerpatch.isBattleMode()) {
+		if (playerpatch != null && playerpatch.isEpicFightMode()) {
 			info.setReturnValue(super.getTick() >= EPICFIGHT_MAX_TICK);
 			info.cancel();
 		}

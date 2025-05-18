@@ -228,7 +228,7 @@ public class ParCoolClientEvents {
 	public static void onMovementInputUpdateEvent(MovementInputUpdateEvent event) {
 		LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(event.getEntity(), LocalPlayerPatch.class);
 		
-		if (playerpatch == null || !playerpatch.isBattleMode()) {
+		if (playerpatch == null || !playerpatch.isEpicFightMode()) {
 			return;
 		}
 		

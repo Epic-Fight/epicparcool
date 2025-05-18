@@ -326,7 +326,7 @@ public class ParCoolEvents {
 		if (PARCOOL_ACTION_CANCEL_EVENTS.containsKey(event.getAction().getClass())) {
 			PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(event.getPlayer(), PlayerPatch.class);
 			
-			if (playerpatch != null && playerpatch.isBattleMode() && PARCOOL_ACTION_CANCEL_EVENTS.get(event.getAction().getClass()).apply(playerpatch, event.getAction())) {
+			if (playerpatch != null && playerpatch.isEpicFightMode() && PARCOOL_ACTION_CANCEL_EVENTS.get(event.getAction().getClass()).apply(playerpatch, event.getAction())) {
 				event.setCanceled(true);
 			}
 		}
@@ -336,7 +336,7 @@ public class ParCoolEvents {
 	public static void onParCoolActionEvent$StartEvent(ParCoolActionEvent.StartEvent event) {
 		PlayerPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(event.getPlayer(), PlayerPatch.class);
 		
-		if (entitypatch != null && entitypatch.isLogicalClient() && entitypatch.getOriginal().isLocalPlayer() && entitypatch.isBattleMode() && PARCOOL_ACTION_START_MAPPING.containsKey(event.getAction().getClass())) {
+		if (entitypatch != null && entitypatch.isLogicalClient() && entitypatch.getOriginal().isLocalPlayer() && entitypatch.isEpicFightMode() && PARCOOL_ACTION_START_MAPPING.containsKey(event.getAction().getClass())) {
 			AssetAccessor<? extends StaticAnimation> animation = PARCOOL_ACTION_START_MAPPING.get(event.getAction().getClass()).apply(entitypatch, event);
 			
 			if (animation != null) {

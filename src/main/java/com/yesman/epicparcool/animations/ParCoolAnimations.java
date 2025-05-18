@@ -141,7 +141,7 @@ public class ParCoolAnimations {
 				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
 				.addEvents(SimpleEvent.create((entitypatch, animation, params) -> {
-					if (entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
+					if (entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isEpicFightMode()) {
 						entitypatch.setYRot(entitypatch.getAnimator().getVariables().getOrDefaultSharedVariable(CLIFF_Y_ROT));
 					} else {
 						entitypatch.setYRot(entitypatch.getOriginal().yBodyRot);
@@ -1014,7 +1014,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT),SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
-					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
+					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isEpicFightMode()) {
 						if (Minecraft.getInstance().options.keyUp.isDown() && KeyBindings.getKeyHangDown().isDown()) {
 							playerpatch.reserveAnimation(BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1);
 						} else {
@@ -1030,7 +1030,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
-					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
+					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isEpicFightMode()) {
 						Vec3 movement = BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_CROSS1.get().getTotalTime());
 						movement = movement.add(BIPED_HANG_DOWN_MOVE_FORWARD_END2.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_END2.get().getTotalTime()));
 						Vec3 hangDownDest = ParCoolUtils.getHangableBars(entitypatch.getOriginal(), movement);
@@ -1050,7 +1050,7 @@ public class ParCoolAnimations {
 				.addProperty(ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(-1.0F, 10.0F))
 				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, SimpleEvent.create(ReusableSources.PLAY_HANG_MOVE_SOUND, AnimationEvent.Side.CLIENT), SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT))
 				.addEvents(StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.<AnimationEvent.E1<Boolean>>create((entitypatch, animation, params) -> {
-					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isBattleMode()) {
+					if (params.first() && entitypatch instanceof PlayerPatch<?> playerpatch && playerpatch.isEpicFightMode()) {
 						Vec3 movement = BIPED_HANG_DOWN_MOVE_FORWARD_CROSS2.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_CROSS2.get().getTotalTime());
 						movement = movement.add(BIPED_HANG_DOWN_MOVE_FORWARD_END1.get().getExpectedMovement(entitypatch, BIPED_HANG_DOWN_MOVE_FORWARD_END1.get().getTotalTime()));
 						Vec3 hangDownDest = ParCoolUtils.getHangableBars(entitypatch.getOriginal(), movement);

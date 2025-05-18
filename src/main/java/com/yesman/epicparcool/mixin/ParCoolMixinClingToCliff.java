@@ -24,7 +24,7 @@ public class ParCoolMixinClingToCliff {
 	public void epicfight_onRenderTick(TickEvent.RenderTickEvent event, Player player, Parkourability parkourability, CallbackInfo callback) {
 		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 		
-		if (playerpatch != null && playerpatch.isBattleMode()) {
+		if (playerpatch != null && playerpatch.isEpicFightMode()) {
 			callback.cancel();
 		}
 	}
@@ -33,7 +33,7 @@ public class ParCoolMixinClingToCliff {
 	public void epicfight_canContinue(Player player, Parkourability parkourability, IStamina stamina, CallbackInfoReturnable<Boolean> callback) {
 		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 		
-		if (playerpatch != null && playerpatch.isBattleMode()) {
+		if (playerpatch != null && playerpatch.isEpicFightMode()) {
 			AssetAccessor<? extends StaticAnimation> nowPlaying = playerpatch.getAnimator().getPlayerFor(null).getAnimation().get().getRealAnimation();
 			
 			if (nowPlaying == ParCoolAnimations.BIPED_CLING_START ||
@@ -59,7 +59,7 @@ public class ParCoolMixinClingToCliff {
 	public void epicfight_onWorkingTickInLocalClient(Player player, Parkourability parkourability, IStamina stamina, CallbackInfo callback) {
 		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 		
-		if (playerpatch != null && playerpatch.isBattleMode()) {
+		if (playerpatch != null && playerpatch.isEpicFightMode()) {
 			player.setDeltaMovement(0, 0, 0);
 		}
 	}

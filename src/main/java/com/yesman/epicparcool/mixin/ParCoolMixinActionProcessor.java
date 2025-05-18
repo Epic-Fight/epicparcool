@@ -24,7 +24,7 @@ public class ParCoolMixinActionProcessor {
 	public StaminaConsumeTiming epicfight_getStaminaConsumeTimingInTick(Action action, TickEvent.PlayerTickEvent event) {
 		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(event.player, PlayerPatch.class);
 		
-		if (playerpatch != null && playerpatch.isBattleMode()) {
+		if (playerpatch != null && playerpatch.isEpicFightMode()) {
 			if (action.getClass() == Dodge.class) {
 				return null;
 			}
