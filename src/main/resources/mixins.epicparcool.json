@@ -7,14 +7,14 @@
 		"ParCoolMixinKongVaultAnimator",
 		"ParCoolMixinSpeedVaultAnimator",
 		"ParCoolMixinDiveAnimationHostAnimator",
-		"ParCoolMixinHorizontalWallRunAnimator"
+		"ParCoolMixinHorizontalWallRunAnimator",
+		"ParCoolMixinChargeJump"
 	],
 	"mixins": [
 		"ParCoolMixinActionProcessor",
 		"ParCoolMixinAnimation",
 		"ParCoolMixinClingToCliff",
-		"ParCoolMixinClingToCliffAccessor",
-		"ParCoolMixinChargeJump"
+		"ParCoolMixinClingToCliffAccessor"
 	],
 	"injector": {
 		"defaultRequire": 1
