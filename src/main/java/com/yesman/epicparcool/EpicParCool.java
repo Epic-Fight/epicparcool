@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import com.alrex.parcool.ParCool;
 import com.mojang.logging.LogUtils;
 import com.yesman.epicparcool.client.event.ParCoolClientEvents;
+import com.yesman.epicparcool.client.screen.EpicParCoolConfigurations;
 import com.yesman.epicparcool.event.ParCoolEvents;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModContainer;
@@ -113,6 +115,8 @@ public class EpicParCool {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
     		modEventbus.addListener(ParCoolClientEvents::onSetup);
         });
+		
+		context.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory(EpicParCoolConfigurations::new));
 	}
 	
 	public void constructMod(FMLConstructModEvent event) {
