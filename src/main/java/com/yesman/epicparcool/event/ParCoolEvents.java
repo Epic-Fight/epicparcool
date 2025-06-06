@@ -317,6 +317,10 @@ public class ParCoolEvents {
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.HANG_DOWN_ORTHOGONAL, ParCoolAnimations.BIPED_HANG_DOWN_ORTHOGONAL);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.HANG_DOWN, ParCoolAnimations.BIPED_HANG_DOWN);
 			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.SLIDING, ParCoolAnimations.BIPED_SLIDE);
+			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.HIDE_IN_BLOCK_HORIZONTAL, ParCoolAnimations.BIPED_HIDE_IN_BLOCK_HORIZONTAL);
+			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.RIDE_ZIPLINE_FORWARD, ParCoolAnimations.BIPED_RIDE_ZIPLINE_FORWARD);
+			event.getAnimator().addLivingAnimation(ParcoolLivingMotions.RIDE_ZIPLINE_SIDE, ParCoolAnimations.BIPED_RIDE_ZIPLINE_SIDE);
+			
 			//event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CRAWL, ParCoolAnimations.BIPED_CRAWL);
 		}
 	}

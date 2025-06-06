@@ -8,13 +8,16 @@
 		"ParCoolMixinSpeedVaultAnimator",
 		"ParCoolMixinDiveAnimationHostAnimator",
 		"ParCoolMixinHorizontalWallRunAnimator",
-		"ParCoolMixinChargeJump"
+		"ParCoolMixinChargeJump",
+		"ParCoolMixinHideInBlockAnimator",
+		"EpicFightMixinLayer"
 	],
 	"mixins": [
 		"ParCoolMixinActionProcessor",
 		"ParCoolMixinAnimation",
 		"ParCoolMixinClingToCliff",
-		"ParCoolMixinClingToCliffAccessor"
+		"ParCoolMixinClingToCliffAccessor",
+		"ParCoolMixinRideZiplineAccessor"
 	],
 	"injector": {
 		"defaultRequire": 1

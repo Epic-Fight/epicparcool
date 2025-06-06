@@ -26,27 +26,7 @@ import yesman.epicfight.api.animation.LivingMotion;
 
 /**
  *  ***************************************************************
- *  Major version changes
- *  ***************************************************************
- *  Created 20.10.1
- *  
- *  Animations for listed parcool actions
- *  - Cat leap
- *  - Charge jump
- *  - Cling to cliff
- *  - Dive
- *  - Fast run
- *  - Hang down
- *  - Roll
- *  - Sliding
- *  - Speed & Kong Vault
- *  - Wall climb
- *  - Wall jump
- *  - Wall run
- *  - Wall sliding
- *  
- *  ***************************************************************
- *  Minor version changes
+ *  Changes
  *  ***************************************************************
  *  
  *  20.10.1.3 -> 20.10.1.4
@@ -89,13 +69,21 @@ import yesman.epicfight.api.animation.LivingMotion;
  *  
  *  ****************************************************************
  *  
+ *  20.10.2.1 -> 20.11.0.1
+ *  
+ *  Added animations for hide-in-block and zipline riding
+ *  Fixed the first person animations not ending
+ *  Fixed the first animations so that they stick to the grabbing walls & blocks
+ *  
+ *  ****************************************************************
+ *  
  *  @author yesman
  */
 @Mod(EpicParCool.MODID)
 public class EpicParCool {
 	public static final Logger LOGGER = LogUtils.getLogger();
 	public static final String MODID = "epicparcool";
-	public static final String LEAST_PARCOOL_VERSION = "3.4.0.1";
+	public static final String LEAST_PARCOOL_VERSION = "3.4.0.6";
 	
 	public EpicParCool(FMLJavaModLoadingContext context) {
 		ModContainer mc = ModList.get().getModContainerById(ParCool.MOD_ID).orElseThrow();

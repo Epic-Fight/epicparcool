@@ -8,14 +8,17 @@ import com.alrex.parcool.client.animation.impl.ClingToCliffAnimator;
 import com.alrex.parcool.client.animation.impl.DiveAnimationHostAnimator;
 import com.alrex.parcool.client.animation.impl.FastRunningAnimator;
 import com.alrex.parcool.client.animation.impl.HangAnimator;
+import com.alrex.parcool.client.animation.impl.HideInBlockAnimator;
 import com.alrex.parcool.client.animation.impl.HorizontalWallRunAnimator;
 import com.alrex.parcool.client.animation.impl.JumpChargingAnimator;
+import com.alrex.parcool.client.animation.impl.RideZiplineAnimator;
 import com.alrex.parcool.client.animation.impl.SlidingAnimator;
 import com.alrex.parcool.client.animation.impl.WallSlideAnimator;
 import com.alrex.parcool.common.action.impl.ClingToCliff;
 import com.alrex.parcool.common.action.impl.HangDown;
 import com.alrex.parcool.common.action.impl.HangDown.BarAxis;
 import com.alrex.parcool.common.action.impl.JumpFromBar;
+import com.alrex.parcool.common.action.impl.RideZipline;
 import com.alrex.parcool.common.action.impl.VerticalWallRun;
 import com.alrex.parcool.common.action.impl.WallJump;
 import com.alrex.parcool.common.action.impl.WallSlide;
@@ -31,7 +34,9 @@ import com.yesman.epicparcool.ParcoolLivingMotions;
 import com.yesman.epicparcool.animations.ParCoolAnimations;
 import com.yesman.epicparcool.mixin.ParCoolMixinAnimation;
 import com.yesman.epicparcool.mixin.ParCoolMixinDiveAnimationHostAnimator;
+import com.yesman.epicparcool.mixin.ParCoolMixinHideInBlockAnimator;
 import com.yesman.epicparcool.mixin.ParCoolMixinHorizontalWallRunAnimator;
+import com.yesman.epicparcool.mixin.ParCoolMixinRideZiplineAccessor;
 
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,6 +45,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -152,6 +158,39 @@ public class ParCoolClientEvents {
 			livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.SLIDING);
 		});
 		
+		PARCOOL_ANIMATOR_MAPPING.put(HideInBlockAnimator.class, (animator, parkourability, livingMotionUpdateEvent) -> {
+			if (!((ParCoolMixinHideInBlockAnimator)animator).getStanding()) {
+				livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.HIDE_IN_BLOCK_HORIZONTAL);
+			}
+		});
+		
+		PARCOOL_ANIMATOR_MAPPING.put(RideZiplineAnimator.class, (animator, parkourability, livingMotionUpdateEvent) -> {
+			LivingMotion oldMotion = livingMotionUpdateEvent.getPlayerPatch().getClientAnimator().currentMotion();
+			
+			if (oldMotion == ParcoolLivingMotions.RIDE_ZIPLINE_FORWARD || oldMotion == ParcoolLivingMotions.RIDE_ZIPLINE_SIDE) {
+				livingMotionUpdateEvent.setMotion(oldMotion);
+				return;
+			}
+			
+			ParCoolMixinRideZiplineAccessor action = (ParCoolMixinRideZiplineAccessor)parkourability.get(RideZipline.class);
+			Vec3 offset = action.getEndOffsetFromStart().normalize();
+			Vec3 lookVec = VectorUtil.fromYawDegree(livingMotionUpdateEvent.getPlayerPatch().getOriginal().getYRot());
+			double dot = offset.dot(lookVec);
+			double yRot = VectorUtil.toYaw(offset);
+			
+			if (Math.abs(dot) > 0.5D) {
+				livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.RIDE_ZIPLINE_FORWARD);
+				
+				if (dot < 0.0D) {
+					yRot += 180.0D;
+				}
+				
+				livingMotionUpdateEvent.getPlayerPatch().setYRot((float)yRot);
+			} else {
+				livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.RIDE_ZIPLINE_SIDE);
+			}
+		});
+		
 		/**
 		PARCOOL_ANIMATOR_MAPPING.put(CrawlAnimator.class, (animator, parkourability, livingMotionUpdateEvent) -> {
 			livingMotionUpdateEvent.setMotion(ParcoolLivingMotions.CRAWL);
@@ -219,7 +258,9 @@ public class ParCoolClientEvents {
 			Parkourability parkourability = Parkourability.get(event.getPlayerPatch().getOriginal());
 			
 			if (parkourability != null && animator != null && PARCOOL_ANIMATOR_MAPPING.containsKey(animator.getClass())) {
-				PARCOOL_ANIMATOR_MAPPING.get(animator.getClass()).accept(animator, parkourability, event);
+				if (!animator.shouldRemoved(event.getPlayerPatch().getOriginal(), parkourability)) {
+					PARCOOL_ANIMATOR_MAPPING.get(animator.getClass()).accept(animator, parkourability, event);
+				}
 			}
 		});
 	}

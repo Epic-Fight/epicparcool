@@ -6,11 +6,18 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import com.alrex.parcool.client.input.KeyBindings;
+import com.alrex.parcool.common.action.impl.HideInBlock;
+import com.alrex.parcool.common.action.impl.RideZipline;
+import com.alrex.parcool.common.capability.Parkourability;
 import com.alrex.parcool.config.ParCoolConfig;
 import com.alrex.parcool.utilities.EntityUtil;
+import com.alrex.parcool.utilities.VectorUtil;
+import com.ibm.icu.impl.Pair;
 import com.yesman.epicparcool.EpicParCool;
 import com.yesman.epicparcool.ParCoolUtils;
 import com.yesman.epicparcool.ParCoolUtils.ClingType;
+import com.yesman.epicparcool.mixin.EpicFightMixinLayer;
+import com.yesman.epicparcool.mixin.ParCoolMixinRideZiplineAccessor;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -79,6 +86,9 @@ public class ParCoolAnimations {
 	public static AnimationAccessor<StaticAnimation> BIPED_JUMP_FROM_BAR;
 	public static AnimationAccessor<StaticAnimation> BIPED_SLIDE;
 	public static AnimationAccessor<StaticAnimation> BIPED_CLIMB_UP_NO_ACTION;
+	public static AnimationAccessor<StaticAnimation> BIPED_HIDE_IN_BLOCK_HORIZONTAL;
+	public static AnimationAccessor<StaticAnimation> BIPED_RIDE_ZIPLINE_FORWARD;
+	public static AnimationAccessor<StaticAnimation> BIPED_RIDE_ZIPLINE_SIDE;
 	public static AnimationAccessor<StaticAnimation> BIPED_ROLL_FORWARD;
 	public static AnimationAccessor<StaticAnimation> BIPED_ROLL_BACKWARD;
 	public static AnimationAccessor<StaticAnimation> BIPED_ROLL_LEFT;
@@ -508,6 +518,98 @@ public class ParCoolAnimations {
 					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
 					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
 					.addStateRemoveOld(EntityState.UPDATE_LIVING_MOTION, false)
+					.addStateRemoveOld(EntityState.INACTION, true)
+		);
+		
+		BIPED_HIDE_IN_BLOCK_HORIZONTAL = builder.nextAccessor("biped/hide_horizontal", (accessor) ->
+			new StaticAnimation(true, accessor, Armatures.BIPED)
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create((entitypatch, animation, params) -> {
+						if (entitypatch instanceof PlayerPatch<?> playerpatch) {
+							Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());
+							Vec3 lookVec = parkourability.get(HideInBlock.class).getLookDirection();
+							
+							if (lookVec != null) {
+								float yRot = (float) VectorUtil.toYawDegree(lookVec);
+								entitypatch.setYRot(yRot);
+							}
+						}
+					}, Side.CLIENT)
+				)
+				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
+				.newTimePair(0.0F, 10000.0F)
+					.addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+					.addStateRemoveOld(EntityState.INACTION, true)
+		);
+		
+		BIPED_RIDE_ZIPLINE_FORWARD = builder.nextAccessor("biped/ride_zipline_forward", (accessor) ->
+			new StaticAnimation(false, accessor, Armatures.BIPED)
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create((entitypatch, animation, params) -> {
+						((EpicFightMixinLayer)entitypatch.getClientAnimator().baseLayer).getLinkAnimation().setNextStartTime(0.5F);
+					}, Side.CLIENT)
+				)
+				.addProperty(StaticAnimationProperty.ELAPSED_TIME_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+					float modular = 0.5F;
+					
+					if (entitypatch instanceof PlayerPatch<?> playerpatch) {
+						Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());
+						ParCoolMixinRideZiplineAccessor action = (ParCoolMixinRideZiplineAccessor)parkourability.get(RideZipline.class);
+						double d1 = Math.abs(action.getSpeed());
+						double d2 = -1.0D / (1.0D * d1 + 1.0D) + 1.0D;
+						Vec3 offset = action.getEndOffsetFromStart().normalize();
+						Vec3 lookVec = VectorUtil.fromYawDegree(playerpatch.getYRot());
+						double dot = offset.dot(lookVec);
+						
+						modular += MathUtils.getSign(dot) * d2 * 0.5D;
+					}
+					
+					return Pair.of(prevElapsedTime, modular);
+				})
+				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
+				.newTimePair(0.0F, 10000.0F)
+					.addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+					.addStateRemoveOld(EntityState.INACTION, true)
+		);
+		
+		BIPED_RIDE_ZIPLINE_SIDE = builder.nextAccessor("biped/ride_zipline_side", (accessor) ->
+			new StaticAnimation(false, accessor, Armatures.BIPED)
+				.addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS,
+					SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK, Side.CLIENT),
+					SimpleEvent.create((entitypatch, animation, params) -> {
+						((EpicFightMixinLayer)entitypatch.getClientAnimator().baseLayer).getLinkAnimation().setNextStartTime(0.5F);
+					}, Side.CLIENT)
+				)
+				.addProperty(StaticAnimationProperty.ELAPSED_TIME_MODIFIER, (self, entitypatch, speed, prevElapsedTime, elapsedTime) -> {
+					float modular = 0.5F;
+					
+					if (entitypatch instanceof PlayerPatch<?> playerpatch) {
+						Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());
+						ParCoolMixinRideZiplineAccessor action = (ParCoolMixinRideZiplineAccessor)parkourability.get(RideZipline.class);
+						double d1 = Math.abs(action.getSpeed());
+						double d2 = -1.0D / (1.0D * d1 + 1.0D) + 1.0D;
+						double yawToEndPoint = VectorUtil.toYaw(action.getEndOffsetFromStart());
+						double playerYaw = Mth.wrapDegrees(playerpatch.getYRot() - yawToEndPoint);
+						
+						modular += ((playerYaw > 0.0D) ? -1.0D : 1.0D) * d2 * 0.5D;
+					}
+					
+					return Pair.of(prevElapsedTime, modular);
+				})
+				.addProperty(StaticAnimationProperty.ON_ITEM_CHANGE_EVENT, SimpleEvent.create(Animations.ReusableSources.SET_TOOLS_BACK_WHEN_ITEM_CHANGED, Side.CLIENT))
+				.addEvents(StaticAnimationProperty.ON_END_EVENTS, SimpleEvent.create(Animations.ReusableSources.REVERT_TO_HANDS, Side.CLIENT))
+				.newTimePair(0.0F, 10000.0F)
+					.addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+					.addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+					.addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
 					.addStateRemoveOld(EntityState.INACTION, true)
 		);
 		

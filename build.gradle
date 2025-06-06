@@ -102,8 +102,8 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     
-    implementation fg.deobf("local:epicfight:20.10.5.101")
-    implementation fg.deobf("curse.maven:parcool-482378:6525544")
+    implementation fg.deobf("local:epicfight:20.11.4")
+    implementation fg.deobf("curse.maven:parcool-482378:6612358")
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
