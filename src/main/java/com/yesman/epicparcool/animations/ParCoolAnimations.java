@@ -12,7 +12,7 @@ import com.alrex.parcool.common.capability.Parkourability;
 import com.alrex.parcool.config.ParCoolConfig;
 import com.alrex.parcool.utilities.EntityUtil;
 import com.alrex.parcool.utilities.VectorUtil;
-import com.ibm.icu.impl.Pair;
+import com.mojang.datafixers.util.Pair;
 import com.yesman.epicparcool.EpicParCool;
 import com.yesman.epicparcool.ParCoolUtils;
 import com.yesman.epicparcool.ParCoolUtils.ClingType;
