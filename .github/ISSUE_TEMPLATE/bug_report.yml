@@ -59,7 +59,7 @@ body:
     attributes:
       label: Epic Fight Version
       description: "Help us figure out the issue by providing your Epic Fight version that's being used along side EpicParcool"
-      placeholder: Version Number (ex: 20.10.x, 20.11.x)
+      placeholder: Version Number ex: 20.10.x, 20.11.x
     validations:
       required: true
   - type: textarea
