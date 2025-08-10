@@ -21,7 +21,7 @@ public class ParCoolMixinChargeJump {
 		remap = false
 	)
 	private boolean epicparcool_isShiftKeyDown(LocalPlayer self) {
-		if (ClientEngine.getInstance().controllEngine.moverToggling()) {
+		if (ClientEngine.getInstance().controlEngine.moverToggling()) {
 			return true;
 		}
 		

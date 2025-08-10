@@ -206,7 +206,7 @@ public class ParCoolClientEvents {
 			return;
 		}
 		
-		playerpatch.getEventListener().addEventListener(EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (skillexecuteevent) -> {
+		playerpatch.getEventListener().addEventListener(EventType.SKILL_CAST_EVENT, EVENT_UUID, (skillexecuteevent) -> {
 			// Extend phantom ascent
 			if (skillexecuteevent.getSkillContainer().getSkill() == EpicFightSkills.PHANTOM_ASCENT) {
 				Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());

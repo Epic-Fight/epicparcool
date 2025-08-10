@@ -208,7 +208,7 @@ public class ParCoolAnimations {
 						float zRot = entitypatch.getOriginal().getXRot();
 						partialHeadRot = Mth.clamp(partialHeadRot, -90.0F, 90.0F);
 						
-						OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBindedTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
+						OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBoundTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
 						Vec3f zAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Z_AXIS, null);
 						Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
 						
@@ -240,7 +240,7 @@ public class ParCoolAnimations {
 						float zRot = -entitypatch.getOriginal().getXRot();
 						partialHeadRot = Mth.clamp(partialHeadRot, -90.0F, 90.0F);
 						
-						OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBindedTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
+						OpenMatrix4f toOriginalRotation = entitypatch.getArmature().getBoundTransformFor(pose, entitypatch.getArmature().searchJointByName("Head")).removeScale().removeTranslation().invert();
 						Vec3f zAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Z_AXIS, null);
 						Vec3f yAxis = OpenMatrix4f.transform3v(toOriginalRotation, Vec3f.Y_AXIS, null);
 						
