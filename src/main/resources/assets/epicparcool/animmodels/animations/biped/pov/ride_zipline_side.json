@@ -1,0 +1,8 @@
+{
+    "root": "world",
+    "limited_view_degrees": {
+    	"xRot": [-60.0, 10.0],
+    	"yRot": [-40.0, 40.0]
+    },
+    "sync_frame": "true"
+}

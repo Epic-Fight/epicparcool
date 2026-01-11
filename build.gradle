@@ -1,0 +1,209 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.95'
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+repositories {
+    mavenLocal()
+    
+    flatDir {
+        dir 'libs'
+    }
+    
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+base {
+    archivesName = "epic x parcool-neoforge"
+    version = "${mod_version}-1.21.1"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        data {
+            data()
+
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    //implementation "curse.maven:parcool-482378:7445369"
+    implementation "curse.maven:epic-fight-mod-405076:7345490"
+    implementation "libs:ParCool:3.4.3.0"
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version       : minecraft_version,
+            minecraft_version_range : minecraft_version_range,
+            neo_version             : neo_version,
+            neo_version_range       :  neo_version_range,
+            loader_version_range    : loader_version_range,
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : mod_version,
+            mod_authors             : mod_authors,
+            mod_description         : mod_description,
+            epicfight_version_range : epicfight_version_range,
+            parcool_version_range   : parcool_version_range
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+// Create source.jar
+java {
+    withSourcesJar()
+}
+
+publishMods {
+    def readme = project.file('RELEASE_NOTES.md')
+    def readmeContent = readme.getText()
+    def pattern = """(?s)## \\[""" + mod_version + """\\] - \\d{4}-\\d{2}-\\d{2}\\R(.*?)(?=\\R### For Devs|\\R## \\[.*?\\] |\\Z)"""
+    def matcher = (readmeContent =~ pattern)
+    matcher.find()
+
+    // No publishing without matching changelog
+    if (!matcher.hasMatch()) {
+        println ("No matching changelog found for version ${mod_version} in RELEASE_NOTES.md. Publishing is skipped.")
+        return
+    };
+
+    // Extract the latest changelog without the header and API change part
+    def latestChangelog = matcher.group(1)
+
+    // Test run to see the notification works well in discord
+    dryRun = false
+
+    // The changelog that will be appeared in publishing websites
+    changelog = "Minecraft version: ${minecraft_version}\nNeoForge version: ${neo_version}\n\n" + latestChangelog
+
+    // The name of the mod loader
+    modLoaders.add("neoforge")
+
+    // Type of the release: ALPHA, BETA, STABLE
+    type = STABLE
+
+    // The name of the file appeared in publishing websites
+    displayName = "${mod_id}-neoforge-${mod_version}-${minecraft_version}"
+
+    file = jar.archiveFile
+    additionalFiles.from(tasks.named("sourcesJar").flatMap { it.archiveFile })
+
+    // Curseforge publishing info
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = "1295882"
+        minecraftVersions.add("1.21.1")
+        projectSlug = "epic-fight-skill-tree"
+    }
+    // Modrinth publishing info
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = "PezbUFun"
+        minecraftVersions.add("1.21.1")
+    }
+    // Discord webhook and notification settings
+    discord {
+        webhookUrl = providers.environmentVariable("DISCORD_WEBHOOK")
+        dryRunWebhookUrl = providers.environmentVariable("DRY_RUN_DISCORD_WEBHOOK")
+        username = "Update Notification"
+        avatarUrl = "https://i.imgur.com/FrxDviN.png"
+        content = changelog.map { "<@&1074034800849059930>\n# Epic Fight: Skill tree ${mod_version} is out!\nMinecraft version: ${minecraft_version}\nNeoForge version: ${neo_version}\n" + latestChangelog }
+
+        style {
+            look = "MODERN"
+            link = "EMBED"
+            thumbnailUrl = "https://i.imgur.com/j5kjYkD.png"
+        }
+    }
+}

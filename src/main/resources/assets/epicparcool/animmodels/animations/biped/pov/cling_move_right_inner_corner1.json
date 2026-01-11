@@ -1,0 +1,7 @@
+{
+    "root": "world",
+    "limited_view_degrees": {
+    	"xRot": [-90.0, 0.0],
+    	"yRot": [-90.0, 90.0]
+    }
+}
