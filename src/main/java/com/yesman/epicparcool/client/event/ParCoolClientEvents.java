@@ -47,8 +47,10 @@ import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.client.neoevent.UpdatePlayerMotionEvent;
-import yesman.epicfight.api.neoevent.playerpatch.SkillCastEvent;
+import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
+import yesman.epicfight.api.client.event.types.entity.ModifyPlayerLivingMotionEvent;
+import yesman.epicfight.api.event.EpicFightEventHooks;
+import yesman.epicfight.api.event.types.player.SkillCastEvent;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.registry.entries.EpicFightSkillDataKeys;
 import yesman.epicfight.registry.entries.EpicFightSkills;
@@ -59,7 +61,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 public class ParCoolClientEvents {
 	@FunctionalInterface
 	public interface LifecycleAnimationLinker {
-		void accept(com.alrex.parcool.client.animation.Animator animator, Parkourability parkourability, UpdatePlayerMotionEvent.BaseLayer animationUpdateEvent);
+		void accept(com.alrex.parcool.client.animation.Animator animator, Parkourability parkourability, ModifyPlayerLivingMotionEvent.BaseLayer animationUpdateEvent);
 	}
 	
 	private static final Map<Class<? extends com.alrex.parcool.client.animation.Animator>, LifecycleAnimationLinker> PARCOOL_ANIMATOR_MAPPING = Maps.newHashMap();
@@ -194,8 +196,7 @@ public class ParCoolClientEvents {
 		});
 		**/
 	}
-	
-	@SubscribeEvent
+
 	public static void skillExecute(SkillCastEvent skillexecuteevent) {
 		PlayerPatch<?> playerpatch = skillexecuteevent.getPlayerPatch();
 		
@@ -204,7 +205,7 @@ public class ParCoolClientEvents {
 			Parkourability parkourability = Parkourability.get(playerpatch.getOriginal());
 			
 			if (parkourability.get(ClingToCliff.class).isDoing() || parkourability.get(ClimbUp.class).isDoing()) {
-				skillexecuteevent.setCanceled(true);
+                skillexecuteevent.cancel();
 				return;
 			}
 			
@@ -212,7 +213,7 @@ public class ParCoolClientEvents {
 			
 			if (parkourability.get(WallJump.class).canStart(playerpatch.getOriginal(), parkourability, DUMMY_BUFFER)) {
 				DUMMY_BUFFER.flip();
-				skillexecuteevent.setCanceled(true);
+				skillexecuteevent.cancel();
 				skillexecuteevent.getSkillContainer().getDataManager().setData(EpicFightSkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK, true);
 				return;
 			}
@@ -221,7 +222,7 @@ public class ParCoolClientEvents {
 			
 			if (parkourability.get(VerticalWallRun.class).canStart(playerpatch.getOriginal(), parkourability, DUMMY_BUFFER)) {
 				DUMMY_BUFFER.flip();
-				skillexecuteevent.setCanceled(true);
+				skillexecuteevent.cancel();
 				skillexecuteevent.getSkillContainer().getDataManager().setData(EpicFightSkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK, true);
 				return;
 			}
@@ -230,15 +231,13 @@ public class ParCoolClientEvents {
 			
 			if (parkourability.get(JumpFromBar.class).canStart(playerpatch.getOriginal(), parkourability, DUMMY_BUFFER)) {
 				DUMMY_BUFFER.flip();
-				skillexecuteevent.setCanceled(true);
+				skillexecuteevent.cancel();
 				skillexecuteevent.getSkillContainer().getDataManager().setData(EpicFightSkillDataKeys.JUMP_KEY_PRESSED_LAST_TICK, true);
-				return;
 			}
 		}
 	}
 	
-	@SubscribeEvent
-	public static void onBaseLayerUpdateEvent(UpdatePlayerMotionEvent.BaseLayer event) {
+	public static void onBaseLayerUpdateEvent(ModifyPlayerLivingMotionEvent.BaseLayer event) {
 		if (event.inaction()) {
 			return;
 		}
@@ -345,4 +344,9 @@ public class ParCoolClientEvents {
 			event.getInput().leftImpulse = 0.0F;
 		}
 	}
+
+    public static void addEventHooks() {
+        EpicFightEventHooks.Player.CAST_SKILL.registerEvent(ParCoolClientEvents::skillExecute);
+        EpicFightClientEventHooks.Entity.MODIFY_PLAYER_LIVING_MOTION_BASE.registerEvent(ParCoolClientEvents::onBaseLayerUpdateEvent);
+    }
 }

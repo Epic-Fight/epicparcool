@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import yesman.epicfight.EpicFight;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.AnimationManager.AnimationRegistryEvent;
@@ -644,7 +645,7 @@ public class ParCoolAnimations {
                     .addStateRemoveOld(EntityState.SKILL_EXECUTABLE, false)
                     .addStateRemoveOld(EntityState.UPDATE_LIVING_MOTION, false)
                     .addStateRemoveOld(EntityState.INACTION, true)
-                .setResourceLocation(EpicFightMod.MODID, "biped/skill/roll_forward")
+                .setResourceLocation(EpicFight.MODID, "biped/skill/roll_forward")
         );
 
         BIPED_ROLL_BACKWARD = builder.nextAccessor("biped/roll_backward", (accessor) ->
@@ -665,7 +666,7 @@ public class ParCoolAnimations {
                     .addStateRemoveOld(EntityState.SKILL_EXECUTABLE, false)
                     .addStateRemoveOld(EntityState.UPDATE_LIVING_MOTION, false)
                     .addStateRemoveOld(EntityState.INACTION, true)
-                .setResourceLocation(EpicFightMod.MODID, "biped/skill/roll_backward")
+                .setResourceLocation(EpicFight.MODID, "biped/skill/roll_backward")
         );
 
         BIPED_ROLL_LEFT = builder.nextAccessor("biped/roll_left", (accessor) ->
@@ -704,7 +705,7 @@ public class ParCoolAnimations {
 
         BIPED_FLIP_FOWARD = builder.nextAccessor("biped/flip_forward", (accessor) ->
             new ActionAnimation(0.05F, 0.7F, accessor, Armatures.BIPED)
-                .setResourceLocation(EpicFightMod.MODID, "biped/skill/phantom_ascent_forward")
+                .setResourceLocation(EpicFight.MODID, "biped/skill/phantom_ascent_forward")
                 .addStateRemoveOld(EntityState.MOVEMENT_LOCKED, false)
                 .newTimePair(0.0F, 0.5F)
                     .addStateRemoveOld(EntityState.INACTION, true)
@@ -712,7 +713,7 @@ public class ParCoolAnimations {
 
         BIPED_FLIP_BACKWARD = builder.nextAccessor("biped/flip_backward", (accessor) ->
             new ActionAnimation(0.05F, 0.7F, accessor, Armatures.BIPED)
-                .setResourceLocation(EpicFightMod.MODID, "biped/skill/phantom_ascent_backward")
+                .setResourceLocation(EpicFight.MODID, "biped/skill/phantom_ascent_backward")
                 .addStateRemoveOld(EntityState.MOVEMENT_LOCKED, false)
                 .newTimePair(0.0F, 0.5F)
                     .addStateRemoveOld(EntityState.INACTION, true)

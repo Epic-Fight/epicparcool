@@ -13,6 +13,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import yesman.epicfight.api.animation.LivingMotion;
+import yesman.epicfight.api.client.event.EpicFightClientEventHooks;
+import yesman.epicfight.api.event.EpicFightEventHooks;
 import yesman.epicfight.main.EpicFightSharedConstants;
 
 @Mod(EpicParCool.MODID)
@@ -28,7 +30,12 @@ public class EpicParCool {
 		if (EpicFightSharedConstants.isPhysicalClient()) {
 			modEventBus.addListener(ParCoolClientEvents::onSetup);
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, EpicParCoolConfigurations::new);
+
+            EpicFightEventHooks.Player.CAST_SKILL.registerEvent(ParCoolClientEvents::skillExecute);
+            EpicFightClientEventHooks.Entity.MODIFY_PLAYER_LIVING_MOTION_BASE.registerEvent(ParCoolClientEvents::onBaseLayerUpdateEvent);
 		}
+
+        EpicFightEventHooks.Animation.INIT_ANIMATOR.registerEvent(ParCoolEvents::onInitAnimatorEvent);
 	}
 	
 	public void constructMod(FMLConstructModEvent event) {

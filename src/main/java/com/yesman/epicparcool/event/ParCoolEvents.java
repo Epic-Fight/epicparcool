@@ -36,7 +36,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.neoevent.InitAnimatorEvent;
+import yesman.epicfight.api.event.types.animation.InitAnimatorEvent;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.registry.entries.EpicFightSkills;
 import yesman.epicfight.skill.SkillSlots;
@@ -293,7 +293,6 @@ public class ParCoolEvents {
         });
     }
 
-    @SubscribeEvent
     public static void onInitAnimatorEvent(InitAnimatorEvent event) {
         if (event.getEntityPatch() instanceof PlayerPatch<?>) {
             event.getAnimator().addLivingAnimation(ParcoolLivingMotions.CAT_LEAP_PREPARATION, ParCoolAnimations.BIPED_CAT_LEAP_PREPARATION);
